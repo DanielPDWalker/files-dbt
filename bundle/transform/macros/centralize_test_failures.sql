@@ -49,7 +49,20 @@
           {% endif %}
         {% endif %}
 
-        insert into {{ central_tbl }}(test_name, test_run_time, test_failures_json)
+        {% if adapter_type == 'postgres' %}
+          insert into {{ central_tbl }}(test_name, test_run_time, test_failures_json)
+        {% endif %}
+
+        {% if adapter_type == 'snowflake' %}
+
+          create or replace table {{ central_tbl }} as
+          {% if table_exists %}
+            select *
+            from {{ central_tbl }}
+            union all
+          {% endif %}
+
+        {% endif %}
         {% for result in test_results %}
 
             {% set table_name = result.node.relation_name %}
